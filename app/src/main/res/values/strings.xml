@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">QrCode</string>
+    <string name="title_home">Home</string>
+    <string name="title_setting">Setting</string>
+    <string name="title_history">History</string>
+    <string name="title_scan">Scan</string>
+    <string name="title_share">Share</string>
+    <string name="turn_on_flashlight">Turn on flashlight</string>
+    <string name="turn_off_flashlight">Turn off flashlight</string>
+    <string name="navigation_delete">Xóa</string>
+    <string name="navigation_layout">Sắp xếp</string>
+    <string name="history_clear_text">Clear history</string>
+    <string name="history_clear_one_history_text">Clear</string>
+    <string name="history_email_title">Barcode Scanner history</string>
+    <string name="history_empty">Empty</string>
+    <string name="history_empty_detail">No barcode scans have been recorded</string>
+    <string name="history_send">Send history</string>
+    <string name="history_title">History</string>
+    <string name="msg_require_camera">Vui lòng cấp quyền máy ảnh để quét mã vạch!</string>
+    <string name="title_turn_on_flash">Turn on flash</string>
+    <string name="msg_put_barcode_to_scan">Put barcode to rectangle to scan!</string>
+    <string name="msg_sure">Are you sure?</string>
+    <string name="button_ok">Yes</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="action_web_search">Web search</string>
+    <string name="iv_barcode">Result image</string>
+    <string name="title_share_intent">Share via</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_turn_off_flash">Turn of flash</string>
+    <string name="ic_flash">Icon flash</string>
+    <string name="msg_notice_no_data_scan">No data is detected.\\nTouch to rescan!</string>
+    <string name="msg_barcode_null">Data is not detected!</string>
+</resources>
