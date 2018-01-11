@@ -1,4 +1,4 @@
-package com.binh.qrcode;
+package com.binh.qrcode.main;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -13,10 +13,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.binh.qrcode.R;
 import com.binh.qrcode.history.HistoryManager;
 
 /**
  * Created by binh on 11/11/2017.
+ *
  */
 
 public class ResultFragment extends Fragment {
@@ -24,7 +26,7 @@ public class ResultFragment extends Fragment {
     private ImageView imageView;
     private TextView tvResult;
     private ImageButton btnSearch, btnShare;
-    private String text, format;
+    private String text, format, type;
 
     public ResultFragment() {
     }
@@ -45,10 +47,12 @@ public class ResultFragment extends Fragment {
         imageView = rootView.findViewById(R.id.iv_barcode);
         tvResult = rootView.findViewById(R.id.tv_result);
         Bundle args = getArguments();
+
         try {
             imageView.setImageBitmap(args.<Bitmap>getParcelable("image"));
             text = args.getString("text") + "\n" + args.getString("display");
             format = args.getString("format");
+            type = args.getString("type");
             tvResult.setText(text);
         } catch (Exception e) {
 

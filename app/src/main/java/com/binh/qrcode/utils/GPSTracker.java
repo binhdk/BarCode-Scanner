@@ -1,4 +1,4 @@
-package com.binh.qrcode;
+package com.binh.qrcode.utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,6 +22,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 /**
  * Created by binh on 10/17/2017.
+ * track device location
  */
 public class GPSTracker extends Service implements LocationListener {
 
@@ -29,7 +30,7 @@ public class GPSTracker extends Service implements LocationListener {
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute
     private final Context mContext;
     // Declaring a LocationRequest Manager
     protected LocationManager locationManager;

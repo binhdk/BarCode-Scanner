@@ -4,6 +4,7 @@ import com.google.zxing.Result;
 
 /**
  * Created by binh on 11/11/2017.
+ * scanned item's data
  */
 
 public class HistoryItem {

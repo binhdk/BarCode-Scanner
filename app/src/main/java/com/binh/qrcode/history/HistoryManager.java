@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Created by binh on 11/11/2017.
+ * handle scanned item in local database
  */
 
 public class HistoryManager {

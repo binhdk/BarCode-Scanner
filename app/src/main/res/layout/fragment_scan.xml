@@ -2,7 +2,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <com.journeyapps.barcodescanner.CompoundBarcodeView
         android:id="@+id/zxing_barcode_scanner"
         android:layout_width="match_parent"
@@ -12,8 +11,8 @@
             android:id="@+id/btn_flash_on"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:contentDescription="@string/ic_flash"
             android:src="@drawable/ic_lightning" />
@@ -22,8 +21,8 @@
             android:id="@+id/btn_flash_off"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:contentDescription="@string/ic_flash"
             android:src="@drawable/ic_flash_off_black_24dp"

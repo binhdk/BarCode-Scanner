@@ -35,4 +35,7 @@
     <string name="ic_flash">Icon flash</string>
     <string name="msg_notice_no_data_scan">No data is detected.\\nTouch to rescan!</string>
     <string name="msg_barcode_null">Data is not detected!</string>
+    <string name="lb_scan">Scan</string>
+    <string name="lb_history">History</string>
+    <string name="navigation_search">Search</string>
 </resources>

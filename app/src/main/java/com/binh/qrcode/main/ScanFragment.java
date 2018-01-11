@@ -1,38 +1,37 @@
-package com.binh.qrcode;
+package com.binh.qrcode.main;
 
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.binh.qrcode.history.HistoryFragment;
+import com.binh.qrcode.R;
 import com.binh.qrcode.history.HistoryItem;
 import com.binh.qrcode.history.HistoryManager;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
+import com.google.zxing.client.result.ResultParser;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CompoundBarcodeView;
 
 import java.util.List;
 
-public class ScanFragment extends Fragment implements CompoundBarcodeView.TorchListener, View.OnClickListener {
+public class ScanFragment extends Fragment
+        implements CompoundBarcodeView.TorchListener,
+        View.OnClickListener {
 
     private CompoundBarcodeView barcodeView;
     private BeepManager beepManager;
     private HistoryManager manager;
+    private View rootView;
     ImageView ivFlashOn, ivFlashOff;
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
@@ -60,14 +59,15 @@ public class ScanFragment extends Fragment implements CompoundBarcodeView.TorchL
                     bundle.putString("format", result.getBarcodeFormat().name());
                     bundle.putString("display", result.getResult().getText());
                     bundle.putParcelable("image", result.getBitmap());
+                    bundle.putString("type", ResultParser.parseResult(result.getResult()).getType().toString());
                     manager.addItem(new HistoryItem(result.getResult(), result.getResult().getText()));
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.content_main, ResultFragment.newInstance(bundle))
+                            .replace(R.id.content_main, ResultFragment.newInstance(bundle), ResultFragment.class.getSimpleName())
                             .addToBackStack(null)
                             .commit();
                 }
             } else {
-                Snackbar.make(getView().getRootView(), getString(R.string.msg_barcode_null), Snackbar.LENGTH_SHORT);
+                Snackbar.make(rootView, getString(R.string.msg_barcode_null), Snackbar.LENGTH_SHORT);
             }
             beepManager.playBeepSoundAndVibrate();
         }
@@ -78,11 +78,6 @@ public class ScanFragment extends Fragment implements CompoundBarcodeView.TorchL
         }
     };
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
 
     public ScanFragment() {
         // Required empty public constructor
@@ -96,7 +91,7 @@ public class ScanFragment extends Fragment implements CompoundBarcodeView.TorchL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
+        rootView = inflater.inflate(R.layout.fragment_scan, container, false);
         manager = new HistoryManager(getContext());
         barcodeView = rootView.findViewById(R.id.zxing_barcode_scanner);
         barcodeView.setTorchListener(this);
@@ -110,33 +105,6 @@ public class ScanFragment extends Fragment implements CompoundBarcodeView.TorchL
         return rootView;
     }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        inflater.inflate(R.menu.navigation, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.navigation_history:
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.content_main, HistoryFragment.newInstance())
-                        .addToBackStack(null)
-                        .commit();
-                return true;
-            case R.id.navigation_setting:
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.content_main, SettingFragment.newInstance())
-                        .addToBackStack(null)
-                        .commit();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
 
     @Override
     public void onResume() {

@@ -15,6 +15,7 @@ import com.google.zxing.Result;
 
 /**
  * Created by binh on 11/11/2017.
+ * adapter for history scanned item
  */
 
 public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
@@ -22,10 +23,12 @@ public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
 
     public HistoryItemAdapter(@NonNull Context context, int resource) {
         super(context, resource);
+        activity = context;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
+    public View getView(int position, View view, @NonNull ViewGroup viewGroup) {
         View layout;
         if (view instanceof LinearLayout) {
             layout = view;
@@ -35,8 +38,10 @@ public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
         }
 
         HistoryItem item = getItem(position);
-        Result result = item.getResult();
-
+        Result result = null;
+        if (item != null) {
+            result = item.getResult();
+        }
         CharSequence title;
         CharSequence detail;
         if (result != null) {

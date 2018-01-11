@@ -34,8 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_result"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="30dp"
-        android:layout_toRightOf="@+id/btn_search_web"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@+id/btn_search_web"
         android:background="@android:drawable/ic_menu_share"
         android:contentDescription="@string/action_web_search"
         android:text="@string/action_web_search" />
