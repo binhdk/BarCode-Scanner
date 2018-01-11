@@ -11,17 +11,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 5;
-    private static final String DB_NAME = "barcode_scanner_history.db";
+    private static final String DB_NAME = "barcode_history.db";
     static final String TABLE_NAME = "history";
     static final String ID_COL = "id";
     static final String TEXT_COL = "text";
     static final String FORMAT_COL = "format";
     static final String DISPLAY_COL = "display";
     static final String TIMESTAMP_COL = "timestamp";
-    static final String DETAILS_COL = "details";
-    static final String LATITUDE_COL = "latitude";
-    static final String LONGITUDE_COL = "longitude";
-    static final String ACCURATE_LOCATION_COL = "accurate_location";
 
     DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -35,11 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         TEXT_COL + " TEXT, " +
                         FORMAT_COL + " TEXT, " +
                         DISPLAY_COL + " TEXT, " +
-                        TIMESTAMP_COL + " INTEGER, " +
-                        DETAILS_COL + " TEXT, " +
-                        LATITUDE_COL + " TEXT, " +
-                        LONGITUDE_COL + " TEXT, " +
-                        ACCURATE_LOCATION_COL + " TEXT );");
+                        TIMESTAMP_COL + " INTEGER);");
     }
 
     @Override

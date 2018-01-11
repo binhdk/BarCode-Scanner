@@ -7,25 +7,87 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.binh.qrcode.R;
 import com.binh.qrcode.history.HistoryActivity;
+import com.binh.qrcode.history.HistoryItem;
+import com.binh.qrcode.history.HistoryManager;
 import com.binh.qrcode.setting.SettingActivity;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.BeepManager;
+import com.journeyapps.barcodescanner.BarcodeCallback;
+import com.journeyapps.barcodescanner.BarcodeResult;
+import com.journeyapps.barcodescanner.CompoundBarcodeView;
+import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        DecoratedBarcodeView.TorchListener,
+        View.OnClickListener {
     private final int REQUEST_CODE = 1;
+    private CompoundBarcodeView barcodeView;
+    private BeepManager beepManager;
+    private HistoryManager manager;
+    ImageView ivFlashOn, ivFlashOff;
+    private BarcodeCallback callback = new BarcodeCallback() {
+        @Override
+        public void barcodeResult(BarcodeResult result) {
+            if (result != null) {
+                if ("false".equalsIgnoreCase(result.getText())) {
+                    Toast toast = Toast.makeText(
+                            MainActivity.this, getString(R.string.msg_notice_no_data_scan), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, 0, 0);
+                    toast.show();
+                    barcodeView.pause();
+                    barcodeView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                                barcodeView.resume();
+                                barcodeView.decodeSingle(callback);
+                                return true;
+                            } else
+                                return false;
+                        }
+                    });
+                } else {
+                    manager.addItem(new HistoryItem(result.getResult(), result.getResult().getText()));
+                    Intent intent = new Intent(MainActivity.this, ResultActivity.class);
+                    intent.putExtra("text", result.getText());
+                    intent.putExtra("format", result.getBarcodeFormat().name());
+                    intent.putExtra("image", result.getBitmap());
+                    startActivity(intent);
+                }
+            } else {
+                Toast toast = Toast.makeText(
+                        MainActivity.this, getString(R.string.msg_barcode_null), Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.BOTTOM, 0, 0);
+                toast.show();
+            }
+            beepManager.playBeepSoundAndVibrate();
+        }
+
+        @Override
+        public void possibleResultPoints(List<ResultPoint> resultPoints) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +101,30 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         requestPermissions();
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(
-                R.id.content_main, ScanFragment.newInstance(), ScanFragment.class.getSimpleName());
-        fm.popBackStack(null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentTransaction.commit();
+        manager = new HistoryManager(this);
+        barcodeView = findViewById(R.id.zxing_barcode_scanner);
+        barcodeView.setTorchListener(this);
+        barcodeView.setStatusText(getString(R.string.msg_put_barcode_to_scan));
+        barcodeView.decodeSingle(callback);
+        beepManager = new BeepManager(this);
+        ivFlashOn = findViewById(R.id.btn_flash_on);
+        ivFlashOff = findViewById(R.id.btn_flash_off);
+        ivFlashOn.setOnClickListener(this);
+        ivFlashOff.setOnClickListener(this);
+    }
+    @Override
+    public void onResume() {
+        barcodeView.resume();
+        barcodeView.decodeSingle(callback);
+        super.onResume();
+
     }
 
+    @Override
+    public void onPause() {
+        barcodeView.pause();
+        super.onPause();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,4 +178,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onTorchOn() {
+
+    }
+
+    @Override
+    public void onTorchOff() {
+
+    }
+
+    private boolean hasFlash() {
+        return getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_flash_on:
+                if (hasFlash())
+                    barcodeView.setTorchOn();
+                ivFlashOff.setVisibility(View.VISIBLE);
+                view.setVisibility(View.GONE);
+                break;
+            case R.id.btn_flash_off:
+                view.setVisibility(View.GONE);
+                ivFlashOn.setVisibility(View.VISIBLE);
+                if (hasFlash())
+                    barcodeView.setTorchOff();
+                break;
+        }
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
 }

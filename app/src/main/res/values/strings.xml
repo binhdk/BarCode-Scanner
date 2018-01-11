@@ -38,4 +38,5 @@
     <string name="lb_scan">Scan</string>
     <string name="lb_history">History</string>
     <string name="navigation_search">Search</string>
+    <string name="title_result">Result</string>
 </resources>

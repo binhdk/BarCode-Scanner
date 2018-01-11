@@ -5,60 +5,44 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.binh.qrcode.R;
-import com.binh.qrcode.history.HistoryManager;
 
 /**
  * Created by binh on 11/11/2017.
- *
+ * display result
  */
 
-public class ResultFragment extends Fragment {
-    private HistoryManager historyManager;
+public class ResultActivity extends AppCompatActivity {
     private ImageView imageView;
-    private TextView tvResult;
-    private ImageButton btnSearch, btnShare;
-    private String text, format, type;
+    private String text;
 
-    public ResultFragment() {
-    }
-
-
-    public static ResultFragment newInstance(Bundle args) {
-        ResultFragment resultFragment = new ResultFragment();
-        resultFragment.setArguments(args);
-        return resultFragment;
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_result, container, false);
-        btnSearch = rootView.findViewById(R.id.btn_search_web);
-        btnShare = rootView.findViewById(R.id.btn_share);
-        imageView = rootView.findViewById(R.id.iv_barcode);
-        tvResult = rootView.findViewById(R.id.tv_result);
-        Bundle args = getArguments();
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_result);
+        setTitle(R.string.title_result);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        ImageButton btnSearch = findViewById(R.id.btn_search_web);
+        ImageButton btnShare = findViewById(R.id.btn_share);
+        imageView = findViewById(R.id.iv_barcode);
+        TextView tvResult = findViewById(R.id.tv_result);
+        btnSearch.setVisibility(View.VISIBLE);
         try {
-            imageView.setImageBitmap(args.<Bitmap>getParcelable("image"));
-            text = args.getString("text") + "\n" + args.getString("display");
-            format = args.getString("format");
-            type = args.getString("type");
+            imageView.setImageBitmap((Bitmap) getIntent().getParcelableExtra("image"));
+            text = getIntent().getStringExtra("text");
+            String format = getIntent().getStringExtra("format");
             tvResult.setText(text);
         } catch (Exception e) {
-
+            //
         }
-        btnSearch.setVisibility(View.VISIBLE);
-
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,6 +64,12 @@ public class ResultFragment extends Fragment {
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.title_share_intent)));
             }
         });
-        return rootView;
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
 }

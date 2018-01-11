@@ -2,6 +2,7 @@ package com.binh.qrcode.history;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.binh.qrcode.R;
+import com.binh.qrcode.main.ResultActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +73,19 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void onHistoryItemLongClick(HistoryItem historyItem) {
-
+        Intent intent = new Intent(HistoryActivity.this, ResultActivity.class);
+        intent.putExtra("text", historyItem.getResult().getText());
+        intent.putExtra("format", historyItem.getResult().getBarcodeFormat().name());
+        intent.putExtra("display", historyItem.getResult().getText());
+        startActivity(intent);
     }
 
     private void openHistoryItem(HistoryItem historyItem) {
+        Intent intent = new Intent(HistoryActivity.this, ResultActivity.class);
+        intent.putExtra("text", historyItem.getResult().getText());
+        intent.putExtra("format", historyItem.getResult().getBarcodeFormat().name());
+        intent.putExtra("display", historyItem.getResult().getText());
+        startActivity(intent);
 
     }
 

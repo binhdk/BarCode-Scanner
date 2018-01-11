@@ -8,10 +8,17 @@ import com.google.zxing.Result;
  */
 
 public class HistoryItem {
-    private final Result result;
-    private final String display;
+    private int id;
+    private Result result;
+    private String display;
 
-   public HistoryItem(Result result, String display) {
+    public HistoryItem(Result result, String display) {
+        this.result = result;
+        this.display = display;
+    }
+
+    public HistoryItem(int id, Result result, String display) {
+        this.id = id;
         this.result = result;
         this.display = display;
 
@@ -31,4 +38,7 @@ public class HistoryItem {
         return displayResult.toString();
     }
 
+    public int getId() {
+        return id;
+    }
 }
