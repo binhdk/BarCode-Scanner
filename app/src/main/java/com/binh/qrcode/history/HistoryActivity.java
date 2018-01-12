@@ -5,9 +5,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -26,23 +30,86 @@ public class HistoryActivity extends AppCompatActivity {
     private List<HistoryItem> historyItems;
     private HistoryItemAdapter adapter;
     private HistoryManager historyManager;
+    private ListView listView;
+
+    private ActionMode.Callback actionModeCallBack = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.menu_detail, menu);//Inflate the menu over action mode
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            menu.findItem(R.id.navigation_search).setVisible(false);
+            menu.findItem(R.id.navigation_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.findItem(R.id.navigation_share).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.findItem(R.id.navigation_copy).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_delete:
+                    deleteRows();
+                    break;
+                case R.id.navigation_copy:
+                    copyRow();
+                    break;
+                case R.id.navigation_share:
+                    performShare();
+                    break;
+
+
+            }
+            return false;
+        }
+
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
+
+    private void performShare() {
+
+    }
+
+    private void copyRow() {
+
+    }
+
+    private void deleteRows() {
+        try {
+            HistoryItem historyItem = historyItems.get(listView.getSelectedItemPosition());
+            historyManager.deleteItem(historyItem.getId());
+        } catch (Exception e) {
+            Log.e(HistoryActivity.class.getSimpleName(), "Error ", e);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         setTitle(R.string.title_history);
+        final Toolbar toolbar = findViewById(R.id.toolbar_history);
+        setSupportActionBar(toolbar);
+
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ListView listView = findViewById(R.id.list_view_history);
+        listView = findViewById(R.id.list_view_history);
         historyItems = new ArrayList<>();
         historyManager = new HistoryManager(getApplicationContext());
         historyItems.addAll(historyManager.getAll());
         adapter = new HistoryItemAdapter(this, R.id.list_view_history);
         adapter.addAll(historyItems);
         listView.setAdapter(adapter);
-
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -63,7 +130,8 @@ public class HistoryActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    onHistoryItemLongClick(historyItems.get(position));
+                    listView.setSelected(true);
+                    startSupportActionMode(actionModeCallBack);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     //
                 }
@@ -72,13 +140,6 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-    private void onHistoryItemLongClick(HistoryItem historyItem) {
-        Intent intent = new Intent(HistoryActivity.this, ResultActivity.class);
-        intent.putExtra("text", historyItem.getResult().getText());
-        intent.putExtra("format", historyItem.getResult().getBarcodeFormat().name());
-        intent.putExtra("display", historyItem.getResult().getText());
-        startActivity(intent);
-    }
 
     private void openHistoryItem(HistoryItem historyItem) {
         Intent intent = new Intent(HistoryActivity.this, ResultActivity.class);
@@ -93,7 +154,6 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.menu_detail, menu);
-        menu.getItem(0).setVisible(true);
         return true;
     }
 
@@ -114,8 +174,9 @@ public class HistoryActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int i2) {
                         historyManager.clearHistory();
-                        historyItems.clear();
+                        adapter.clear();
                         adapter.notifyDataSetChanged();
+                        listView.invalidate();
                         dialog.dismiss();
                     }
                 });
@@ -129,7 +190,6 @@ public class HistoryActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     private void share() {
 

@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements
         ivFlashOn.setOnClickListener(this);
         ivFlashOff.setOnClickListener(this);
     }
+
     @Override
     public void onResume() {
         barcodeView.resume();
@@ -149,10 +151,9 @@ public class MainActivity extends AppCompatActivity implements
 
     public void requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, CAMERA) != PackageManager.PERMISSION_GRANTED)
+            if (ContextCompat.checkSelfPermission(this, CAMERA) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this,
-                        new String[]{ACCESS_FINE_LOCATION, CAMERA},
+                        new String[]{CAMERA},
                         REQUEST_CODE);
         }
     }
@@ -164,13 +165,12 @@ public class MainActivity extends AppCompatActivity implements
         switch (requestCode) {
             case REQUEST_CODE:
                 if (grantResults.length > 0) {
-                    boolean accessLocation = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean callPhone = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (!accessLocation || !callPhone) {
+                    boolean callPhone = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (!callPhone) {
                         Snackbar.make(findViewById(android.R.id.content),
                                 getString(R.string.msg_require_camera), Snackbar.LENGTH_LONG).show();
                         ActivityCompat.requestPermissions(this,
-                                new String[]{ACCESS_FINE_LOCATION, CAMERA},
+                                new String[]{ CAMERA},
                                 REQUEST_CODE);
                     }
                 }

@@ -6,20 +6,17 @@
         android:id="@+id/navigation_search"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="@string/navigation_search"
-        android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/navigation_share"
         android:icon="@drawable/ic_share_black_24dp"
-        android:title="@string/title_share"
-        android:visible="false"
-        app:showAsAction="ifRoom|withText" />
+        android:title="@string/title_share" />
     <item
         android:id="@+id/navigation_delete"
         android:icon="@drawable/ic_delete_black_24dp"
-        android:title="@string/navigation_delete"
-        android:visible="true"
-        app:showAsAction="ifRoom|withText" />
-
-
+        android:title="@string/navigation_delete" />
+    <item
+        android:id="@+id/navigation_copy"
+        android:icon="@drawable/ic_action_copy"
+        android:title="@string/navigation_copy" />
 </menu>
