@@ -31,12 +31,16 @@ public class HistoryManager {
         try {
             db = helper.getWritableDatabase();
             db.delete(DBHelper.TABLE_NAME, null, null);
+        } catch (Exception e) {
+            Log.e(HistoryManager.class.getSimpleName(), "error ", e);
         } finally {
             close(null, db);
         }
     }
 
     public void addItem(HistoryItem item) {
+        if (getItem(item.getResult().getText()) != null)
+            return;
         SQLiteOpenHelper helper = new DBHelper(context);
         SQLiteDatabase db = null;
         try {
@@ -47,9 +51,12 @@ public class HistoryManager {
             values.put(DBHelper.DISPLAY_COL, item.getDisplayAndDetails());
             values.put(DBHelper.TIMESTAMP_COL, System.currentTimeMillis());
             db.insert(DBHelper.TABLE_NAME, null, values);
+        } catch (Exception e) {
+            Log.e(HistoryManager.class.getSimpleName(), "error ", e);
         } finally {
             close(null, db);
         }
+
     }
 
     public HistoryItem getItem(int id) {
@@ -59,7 +66,7 @@ public class HistoryManager {
         HistoryItem historyItem = null;
         try {
             db = helper.getReadableDatabase();
-            cursor = db.query(DBHelper.TABLE_NAME, null, DBHelper.ID_COL, new String[]{String.valueOf(id)}, null, null, null);
+            cursor = db.query(DBHelper.TABLE_NAME, null, DBHelper.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
             while (cursor.moveToNext()) {
                 int itemId = cursor.getInt(0);
                 String text = cursor.getString(1);
@@ -71,7 +78,7 @@ public class HistoryManager {
             }
 
         } catch (Exception e) {
-            //
+            Log.e(HistoryManager.class.getSimpleName(), "error ", e);
         } finally {
             close(cursor, db);
         }
@@ -85,10 +92,36 @@ public class HistoryManager {
             db = helper.getWritableDatabase();
             db.delete(DBHelper.TABLE_NAME, DBHelper.ID_COL + '=' + id, null);
         } catch (Exception e) {
-            //
+            Log.e(HistoryManager.class.getSimpleName(), "error ", e);
         } finally {
             close(null, db);
         }
+    }
+
+    public HistoryItem getItem(String content) {
+        SQLiteOpenHelper helper = new DBHelper(context);
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        HistoryItem historyItem = null;
+        try {
+            db = helper.getReadableDatabase();
+            cursor = db.query(DBHelper.TABLE_NAME, null, DBHelper.TEXT_COL + "=?", new String[]{content}, null, null, null);
+            while (cursor.moveToNext()) {
+                int itemId = cursor.getInt(0);
+                String text = cursor.getString(1);
+                String format = cursor.getString(2);
+                String display = cursor.getString(3);
+                long timestamp = cursor.getLong(4);
+                Result result = new Result(text, null, null, BarcodeFormat.valueOf(format), timestamp);
+                historyItem = new HistoryItem(itemId, result, display);
+            }
+
+        } catch (Exception e) {
+            Log.e(HistoryManager.class.getSimpleName(), "error ", e);
+        } finally {
+            close(cursor, db);
+        }
+        return historyItem;
     }
 
     public List<HistoryItem> getAll() {
@@ -110,7 +143,7 @@ public class HistoryManager {
             }
 
         } catch (Exception e) {
-            Log.d("TAG",e.getMessage());
+            Log.e(HistoryManager.class.getSimpleName(), e.getMessage());
         } finally {
             close(cursor, db);
         }

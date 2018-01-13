@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">QrCode</string>
+    <string name="app_name">QrCode Scanner</string>
     <string name="title_home">Home</string>
     <string name="title_setting">Setting</string>
     <string name="title_history">History</string>

@@ -2,12 +2,12 @@ package com.binh.qrcode.history;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.binh.qrcode.R;
-import com.binh.qrcode.main.ResultActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class HistoryActivity extends AppCompatActivity {
     private HistoryItemAdapter adapter;
     private HistoryManager historyManager;
     private ListView listView;
-
+    private ActionMode actionMode;
     private ActionMode.Callback actionModeCallBack = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -50,6 +49,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            hideActionMode();
             switch (item.getItemId()) {
                 case R.id.navigation_delete:
                     deleteRows();
@@ -82,9 +82,18 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void deleteRows() {
+        SparseBooleanArray checked = listView.getCheckedItemPositions();
         try {
-            HistoryItem historyItem = historyItems.get(listView.getSelectedItemPosition());
-            historyManager.deleteItem(historyItem.getId());
+            for (int i = 0; i < listView.getAdapter().getCount(); i++) {
+                if (checked.get(i)) {
+                    HistoryItem historyItem = historyItems.get(i);
+                    historyManager.deleteItem(historyItem.getId());
+                    adapter.remove(historyItem);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            listView.invalidateViews();
+
         } catch (Exception e) {
             Log.e(HistoryActivity.class.getSimpleName(), "Error ", e);
         }
@@ -114,7 +123,8 @@ public class HistoryActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    openHistoryItem(historyItems.get(position));
+                    listView.setItemChecked(position, true);
+                    actionMode = startSupportActionMode(actionModeCallBack);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     //
                 }
@@ -130,8 +140,8 @@ public class HistoryActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    listView.setSelected(true);
-                    startSupportActionMode(actionModeCallBack);
+                    listView.setItemChecked(position, true);
+                    actionMode = startSupportActionMode(actionModeCallBack);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     //
                 }
@@ -140,15 +150,6 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-
-    private void openHistoryItem(HistoryItem historyItem) {
-        Intent intent = new Intent(HistoryActivity.this, ResultActivity.class);
-        intent.putExtra("text", historyItem.getResult().getText());
-        intent.putExtra("format", historyItem.getResult().getBarcodeFormat().name());
-        intent.putExtra("display", historyItem.getResult().getText());
-        startActivity(intent);
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -193,5 +194,10 @@ public class HistoryActivity extends AppCompatActivity {
 
     private void share() {
 
+    }
+
+    public void hideActionMode() {
+        if (actionMode != null)
+            actionMode.finish();
     }
 }
