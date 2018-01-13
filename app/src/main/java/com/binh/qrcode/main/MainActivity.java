@@ -24,7 +24,7 @@ import com.binh.qrcode.R;
 import com.binh.qrcode.history.HistoryActivity;
 import com.binh.qrcode.history.HistoryItem;
 import com.binh.qrcode.history.HistoryManager;
-import com.binh.qrcode.setting.SettingActivity;
+import com.binh.qrcode.setting.SettingsActivity;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
 import com.journeyapps.barcodescanner.BarcodeCallback;
@@ -34,7 +34,6 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 
 public class MainActivity extends AppCompatActivity implements
@@ -138,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_setting:
-                startActivity(new Intent(MainActivity.this, SettingActivity.class));
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
             case R.id.navigation_history:
                 startActivity(new Intent(MainActivity.this, HistoryActivity.class));
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements
                         Snackbar.make(findViewById(android.R.id.content),
                                 getString(R.string.msg_require_camera), Snackbar.LENGTH_LONG).show();
                         ActivityCompat.requestPermissions(this,
-                                new String[]{ CAMERA},
+                                new String[]{CAMERA},
                                 REQUEST_CODE);
                     }
                 }

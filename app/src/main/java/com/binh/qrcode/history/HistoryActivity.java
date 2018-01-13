@@ -11,7 +11,6 @@ import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -31,6 +30,7 @@ public class HistoryActivity extends AppCompatActivity {
     private HistoryManager historyManager;
     private ListView listView;
     private ActionMode actionMode;
+    private Menu menu;
     private ActionMode.Callback actionModeCallBack = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -49,19 +49,19 @@ public class HistoryActivity extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            hideActionMode();
             switch (item.getItemId()) {
                 case R.id.navigation_delete:
                     deleteRows();
-                    break;
+                    hideActionMode();//finish actionmode after do something
+                    return true;
                 case R.id.navigation_copy:
                     copyRow();
-                    break;
+                    hideActionMode();//finish actionmode after do something
+                    return true;
                 case R.id.navigation_share:
                     performShare();
-                    break;
-
-
+                    hideActionMode();//finish actionmode after do something
+                    return true;
             }
             return false;
         }
@@ -69,7 +69,8 @@ public class HistoryActivity extends AppCompatActivity {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-
+            adapter.clearSelections();
+            actionMode=null;
         }
     };
 
@@ -82,11 +83,11 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void deleteRows() {
-        SparseBooleanArray checked = listView.getCheckedItemPositions();
+        SparseBooleanArray selected = adapter.getSelectedIds();
         try {
-            for (int i = 0; i < listView.getAdapter().getCount(); i++) {
-                if (checked.get(i)) {
-                    HistoryItem historyItem = historyItems.get(i);
+            for (int i = 0; i < selected.size(); i++) {
+                if (selected.get(i)) {
+                    HistoryItem historyItem = historyItems.remove(i);
                     historyManager.deleteItem(historyItem.getId());
                     adapter.remove(historyItem);
                     adapter.notifyDataSetChanged();
@@ -118,36 +119,39 @@ public class HistoryActivity extends AppCompatActivity {
         adapter = new HistoryItemAdapter(this, R.id.list_view_history);
         adapter.addAll(historyItems);
         listView.setAdapter(adapter);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    listView.setItemChecked(position, true);
-                    actionMode = startSupportActionMode(actionModeCallBack);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    //
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (actionMode != null)
+                    onListItemSelected(position);
             }
         });
 
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    listView.setItemChecked(position, true);
-                    actionMode = startSupportActionMode(actionModeCallBack);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    //
-                }
+                onListItemSelected(position);
                 return true;
             }
         });
+    }
+
+    private void onListItemSelected(int position) {
+        try {
+            adapter.toggleSelection(position);
+            boolean hasCheckedItems = adapter.getSelectedCount() > 0;
+            if (hasCheckedItems && actionMode == null)
+                actionMode = startSupportActionMode(actionModeCallBack);
+            else if (!hasCheckedItems && actionMode != null)
+                actionMode.finish();
+            if (actionMode != null)
+                actionMode.setTitle(String.valueOf(adapter
+                        .getSelectedCount()));
+        } catch (Exception e) {
+            Log.e(HistoryActivity.class.getSimpleName(), "error", e);
+
+        }
     }
 
 
@@ -155,6 +159,7 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.menu_detail, menu);
+        this.menu = menu;
         return true;
     }
 
@@ -168,6 +173,9 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_delete:
+                enableMultiChoiceListView();
+                if (historyItems.isEmpty())
+                    return true;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.msg_sure);
                 builder.setCancelable(true);
@@ -193,6 +201,10 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void share() {
+
+    }
+
+    private void enableMultiChoiceListView() {
 
     }
 

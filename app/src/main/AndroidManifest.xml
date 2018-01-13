@@ -29,11 +29,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".setting.SettingActivity" />
         <activity
             android:name=".history.HistoryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".main.ResultActivity" />
+        <activity
+            android:name=".setting.SettingsActivity"
+            android:label="@string/title_activity_settings"/>
     </application>
 
 </manifest>
