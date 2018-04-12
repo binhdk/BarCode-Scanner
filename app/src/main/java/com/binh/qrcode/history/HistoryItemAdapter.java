@@ -4,18 +4,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.binh.qrcode.R;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by binh on 11/11/2017.
@@ -24,11 +19,12 @@ import java.util.List;
 
 public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
     private Context activity;
-    private SparseBooleanArray selectedItems;
+    private int selectedPos;
+
     public HistoryItemAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         activity = context;
-        selectedItems = new SparseBooleanArray();
+
     }
 
     @NonNull
@@ -43,7 +39,6 @@ public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
             viewHolder = new ViewHolder();
             viewHolder.title = convertView.findViewById(R.id.history_title);
             viewHolder.detail = convertView.findViewById(R.id.history_detail);
-            viewHolder.checkbox = convertView.findViewById(R.id.checkbox_history);
             convertView.setTag(viewHolder);
         }
         try {
@@ -62,43 +57,24 @@ public class HistoryItemAdapter extends ArrayAdapter<HistoryItem> {
         } catch (Exception e1) {
             Log.e(HistoryItemAdapter.class.getSimpleName(), "error", e1);
         }
-        applyIconAnimation(viewHolder, position);
         return convertView;
     }
 
-    private void applyIconAnimation(ViewHolder holder, int position) {
-        if (selectedItems.get(position, false)) {
-            holder.checkbox.setVisibility(View.VISIBLE);
-            holder.checkbox.setChecked(true);
-        } else {
-            holder.checkbox.setVisibility(View.GONE);
-        }
-    }
-
-
-    public void toggleSelection(int pos) {
-        if (selectedItems.get(pos, false)) {
-            selectedItems.delete(pos);
-        } else {
-            selectedItems.put(pos, true);
-        }
-        notifyDataSetChanged();
-    }
 
     public void clearSelections() {
-        selectedItems.clear();
+        selectedPos = -1;
         notifyDataSetChanged();
     }
-    public int getSelectedCount() {
-        return selectedItems.size();
+
+    public int getSelectedPos() {
+        return selectedPos;
     }
 
-    public SparseBooleanArray getSelectedIds() {
-        return selectedItems;
+    public void setSelectedPos(int selectedPos) {
+        this.selectedPos = selectedPos;
     }
 
     static class ViewHolder {
-        CheckBox checkbox;
         TextView title, detail;
     }
 

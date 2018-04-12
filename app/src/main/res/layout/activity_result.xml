@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/activity_horizontal_margin">
@@ -16,30 +18,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/iv_barcode"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginTop="@dimen/standard_padding"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <ImageButton
-        android:id="@+id/btn_search_web"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_result"
-        android:layout_centerHorizontal="true"
-        android:background="@android:drawable/ic_search_category_default"
-        android:contentDescription="@string/action_web_search"
-        android:visibility="invisible" />
+        android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/btn_share"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_result"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="30dp"
-        android:layout_toEndOf="@+id/btn_search_web"
-        android:background="@android:drawable/ic_menu_share"
-        android:contentDescription="@string/action_web_search"
-        android:text="@string/action_web_search" />
+        <ImageView
+            android:id="@+id/iv_search_web"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/action_web_search"
+            app:srcCompat="@drawable/ic_search_black_36dp" />
+
+        <ImageView
+            android:id="@+id/iv_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/action_web_search"
+            android:text="@string/action_web_search"
+            app:srcCompat="@drawable/ic_share_black_36dp" />
+
+        <ImageView
+            android:id="@+id/iv_copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_content_copy_black_36dp"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
+
 </RelativeLayout>

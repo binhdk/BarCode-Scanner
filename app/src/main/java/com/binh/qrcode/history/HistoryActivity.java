@@ -1,20 +1,25 @@
 package com.binh.qrcode.history;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.binh.qrcode.R;
+import com.binh.qrcode.main.MainActivity;
+import com.binh.qrcode.main.ResultActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,17 +35,18 @@ public class HistoryActivity extends AppCompatActivity {
     private HistoryManager historyManager;
     private ListView listView;
     private ActionMode actionMode;
-    private Menu menu;
     private ActionMode.Callback actionModeCallBack = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.menu_detail, menu);//Inflate the menu over action mode
+            menu.findItem(R.id.navigation_delete).setVisible(true);
+            menu.findItem(R.id.navigation_copy).setVisible(true);
+            menu.findItem(R.id.navigation_share).setVisible(true);
             return true;
         }
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            menu.findItem(R.id.navigation_search).setVisible(false);
             menu.findItem(R.id.navigation_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             menu.findItem(R.id.navigation_share).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             menu.findItem(R.id.navigation_copy).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -51,7 +57,7 @@ public class HistoryActivity extends AppCompatActivity {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_delete:
-                    deleteRows();
+                    deleteRow();
                     hideActionMode();//finish actionmode after do something
                     return true;
                 case R.id.navigation_copy:
@@ -70,30 +76,60 @@ public class HistoryActivity extends AppCompatActivity {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             adapter.clearSelections();
-            actionMode=null;
+            actionMode = null;
         }
     };
 
     private void performShare() {
-
+        try {
+            int pos = adapter.getSelectedPos();
+            if (pos >= 0) {
+                HistoryItem selectedItem = historyItems.get(pos);
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("image/jpeg");
+                String shareBody = selectedItem.getDisplayAndDetails();
+                String shareSubject = "Share data from QrCode scanner";
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, selectedItem.getResult().getRawBytes());
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.title_share_intent)));
+            } else {
+                Toast.makeText(HistoryActivity.this, "Nothing to share", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(HistoryActivity.this, "Nothing is copied", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void copyRow() {
-
+        try {
+            int pos = adapter.getSelectedPos();
+            if (pos >= 0) {
+                HistoryItem selectedItem = historyItems.get(adapter.getSelectedPos());
+                ClipboardManager manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("Content is copied", selectedItem.getDisplayAndDetails());
+                if (manager != null) {
+                    manager.setPrimaryClip(data);
+                    Toast.makeText(HistoryActivity.this, "Text is copied", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(HistoryActivity.this, "Nothing is copied", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(HistoryActivity.this, "Nothing is copied", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void deleteRows() {
-        SparseBooleanArray selected = adapter.getSelectedIds();
+    private void deleteRow() {
         try {
-            for (int i = 0; i < selected.size(); i++) {
-                if (selected.get(i)) {
-                    HistoryItem historyItem = historyItems.remove(i);
-                    historyManager.deleteItem(historyItem.getId());
-                    adapter.remove(historyItem);
-                    adapter.notifyDataSetChanged();
-                }
+            int pos = adapter.getSelectedPos();
+            if (pos >= 0) {
+                HistoryItem historyItem = historyItems.remove(pos);
+                historyManager.deleteItem(historyItem.getId());
+                adapter.remove(historyItem);
+                adapter.notifyDataSetChanged();
+                listView.invalidateViews();
             }
-            listView.invalidateViews();
 
         } catch (Exception e) {
             Log.e(HistoryActivity.class.getSimpleName(), "Error ", e);
@@ -123,8 +159,7 @@ public class HistoryActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (actionMode != null)
-                    onListItemSelected(position);
+                onListItemSelected(position);
             }
         });
 
@@ -138,28 +173,36 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void onListItemSelected(int position) {
+        adapter.setSelectedPos(position);
         try {
-            adapter.toggleSelection(position);
-            boolean hasCheckedItems = adapter.getSelectedCount() > 0;
-            if (hasCheckedItems && actionMode == null)
+            if (actionMode == null)
                 actionMode = startSupportActionMode(actionModeCallBack);
-            else if (!hasCheckedItems && actionMode != null)
+            else
                 actionMode.finish();
-            if (actionMode != null)
-                actionMode.setTitle(String.valueOf(adapter
-                        .getSelectedCount()));
         } catch (Exception e) {
             Log.e(HistoryActivity.class.getSimpleName(), "error", e);
 
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (adapter.isEmpty()) {
+            menu.findItem(R.id.navigation_delete).setVisible(false);
+        } else {
+            menu.findItem(R.id.navigation_delete).setVisible(true);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.clear();
         getMenuInflater().inflate(R.menu.menu_detail, menu);
-        this.menu = menu;
         return true;
     }
 
@@ -173,7 +216,6 @@ public class HistoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_delete:
-                enableMultiChoiceListView();
                 if (historyItems.isEmpty())
                     return true;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -192,21 +234,11 @@ public class HistoryActivity extends AppCompatActivity {
                 builder.setNegativeButton(R.string.button_cancel, null);
                 builder.show();
                 return true;
-            case R.id.navigation_share:
-                share();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void share() {
-
-    }
-
-    private void enableMultiChoiceListView() {
-
-    }
 
     public void hideActionMode() {
         if (actionMode != null)
